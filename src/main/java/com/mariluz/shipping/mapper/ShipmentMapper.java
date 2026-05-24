@@ -5,6 +5,7 @@ package com.mariluz.shipping.mapper;
 import com.mariluz.shipping.dto.CreateShipmentRequest;
 import com.mariluz.shipping.dto.MyShipmentsResponse;
 import com.mariluz.shipping.dto.ShipmentResponse;
+import com.mariluz.shipping.dto.ShipmentsResponse;
 import com.mariluz.shipping.dto.ShippingAddressRequest;
 import com.mariluz.shipping.dto.ShippingAddressResponse;
 import com.mariluz.shipping.dto.UpdateShipmentStatusRequest;
@@ -36,7 +37,7 @@ public interface ShipmentMapper {
 
     ShippingAddressResponse toAddressResponse(ShippingAddress address);
 
-    // ---------- Partial Update (solo status) ----------
+    // ---------- Update Status ----------
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "status", source = "status")
     void updateStatus(
@@ -47,8 +48,16 @@ public interface ShipmentMapper {
     // ---------- Entity List -> Response Wrapper ----------
     List<ShipmentResponse> toResponseList(List<Shipment> shipments);
 
-    default MyShipmentsResponse toMyShipmentsResponse(List<Shipment> shipments) {
+    default MyShipmentsResponse toMyShipmentsResponse(
+        List<Shipment> shipments
+    ) {
         MyShipmentsResponse response = new MyShipmentsResponse();
+        response.setShipments(toResponseList(shipments));
+        return response;
+    }
+
+    default ShipmentsResponse toShipmentsResponse(List<Shipment> shipments) {
+        ShipmentsResponse response = new ShipmentsResponse();
         response.setShipments(toResponseList(shipments));
         return response;
     }

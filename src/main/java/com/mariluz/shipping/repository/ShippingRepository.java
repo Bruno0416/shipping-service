@@ -9,4 +9,6 @@ public interface ShippingRepository extends JpaRepository<Shipment, Integer> {
     List<Shipment> findByUserId(String userId);
 
     Optional<Shipment> findByIdAndUserId(Integer shipmentId, String userId);
+
+    Optional<Shipment> findBySaleIdAndUserId(Integer saleId, String userId);
 }

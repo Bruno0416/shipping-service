@@ -50,11 +50,17 @@ public class ShippingController {
     }
 
     // 4. cancelar pedido (para conectar con sales-service)
-    @PostMapping("/cancel/{shipmentId}")
+    @PutMapping("/cancel/{saleId}")
     public ResponseEntity<?> cancelShipment(
-        @Valid @PathVariable Integer shipmentId
+        @Valid @PathVariable Integer saleId
     ) {
-        service.cancelShipment(shipmentId);
+        service.cancelShipment(saleId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 5. listar envios (admin)
+    @GetMapping("/shipments")
+    public ResponseEntity<ShipmentsResponse> getShipments() {
+        return ResponseEntity.ok(service.getShipments());
     }
 }

@@ -1,6 +1,8 @@
 package com.mariluz.shipping.service;
 
 import com.mariluz.shipping.dto.*;
+import com.mariluz.shipping.exceptions.CouldNotCancelShipmentException;
+import com.mariluz.shipping.exceptions.CouldNotUpdateShipmentException;
 import com.mariluz.shipping.exceptions.ShipmentNotFoundException;
 import com.mariluz.shipping.exceptions.UnauthenticatedException;
 import com.mariluz.shipping.exceptions.UnauthorizedOperationException;
@@ -74,7 +76,7 @@ public class ShippingServiceImpl implements ShippingService {
             shipment.getStatus() == Status.DELIVERED ||
             shipment.getStatus() == Status.CANCELLED
         ) {
-            throw new IllegalStateException(
+            throw new CouldNotUpdateShipmentException(
                 "No se puede modificar un envío en estado " +
                     shipment.getStatus()
             );
@@ -95,10 +97,10 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public void cancelShipment(Integer shipmentId) {
+    public void cancelShipment(Integer saleId) {
         // 1. obtener y validar envío
         Shipment shipment = repo
-            .findByIdAndUserId(shipmentId, getCurrentUser().getId())
+            .findBySaleIdAndUserId(saleId, getCurrentUser().getId())
             .orElseThrow(ShipmentNotFoundException::new);
 
         // 2. validar que el envío no esté en estado terminal
@@ -106,7 +108,7 @@ public class ShippingServiceImpl implements ShippingService {
             shipment.getStatus() == Status.DELIVERED ||
             shipment.getStatus() == Status.CANCELLED
         ) {
-            throw new IllegalStateException(
+            throw new CouldNotCancelShipmentException(
                 "No se puede cancelar un envío en estado " +
                     shipment.getStatus()
             );
@@ -115,5 +117,16 @@ public class ShippingServiceImpl implements ShippingService {
         // 3. cancelar envío
         shipment.setStatus(Status.CANCELLED);
         repo.save(shipment);
+    }
+
+    @Override
+    public ShipmentsResponse getShipments() {
+        // 1. validar admin
+        validateAdminAccess(
+            "Solo los administradores pueden listar los envíos"
+        );
+        // 2. obtener y devolver envios
+        List<Shipment> shipments = repo.findAll();
+        return mapper.toShipmentsResponse(shipments);
     }
 }

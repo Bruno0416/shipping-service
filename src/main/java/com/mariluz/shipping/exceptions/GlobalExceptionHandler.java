@@ -20,7 +20,41 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handler despacho no encontrado
+    // Handler para error al actualizar el estado del despacho
+    @ExceptionHandler(CouldNotUpdateShipmentException.class)
+    public ResponseEntity<ErrorResponse> handleCouldNotUpdateShipment(
+        CouldNotUpdateShipmentException ex,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Despacho no se puede actualizar")
+                .errors(Map.of("error", ex.getMessage()))
+                .endpoint(request.getRequestURI())
+                .build()
+        );
+    }
+
+    // Handler para error al cancelar el despacho
+    @ExceptionHandler(CouldNotCancelShipmentException.class)
+    public ResponseEntity<ErrorResponse> handleCouldNotCancelShipment(
+        CouldNotCancelShipmentException ex,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Despacho no se puede cancelar")
+                .errors(Map.of("error", ex.getMessage()))
+                .endpoint(request.getRequestURI())
+                .build()
+        );
+    }
+
+    // Handler para error al encontrar el despacho
     @ExceptionHandler(ShipmentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleShippingNotFound(
         ShipmentNotFoundException ex,

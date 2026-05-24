@@ -10,5 +10,7 @@ public interface ShippingService {
     // 3. obtener mis envios
     MyShipmentsResponse getMyShipments();
     // 4. cancelar pedido (para conectar con sales-service)
-    void cancelShipment(Integer shipmentId);
+    void cancelShipment(Integer saleId);
+    // 5. listar envios (admin)
+    ShipmentsResponse getShipments();
 }
