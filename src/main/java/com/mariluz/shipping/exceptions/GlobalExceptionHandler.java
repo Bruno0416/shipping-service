@@ -38,23 +38,6 @@ public class GlobalExceptionHandler {
     }
 
     // Handler para error al actualizar el estado del despacho
-    @ExceptionHandler(CouldNotCreateShipmentException.class)
-    public ResponseEntity<ErrorResponse> handleCouldNotCreateShipment(
-        CouldNotCreateShipmentException ex,
-        HttpServletRequest request
-    ) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-            ErrorResponse.builder()
-                .timeStamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message("Despacho no se pudo crear")
-                .errors(Map.of("error", ex.getMessage()))
-                .endpoint(request.getRequestURI())
-                .build()
-        );
-    }
-
-    // Handler para error al actualizar el estado del despacho
     @ExceptionHandler(CouldNotUpdateShipmentException.class)
     public ResponseEntity<ErrorResponse> handleCouldNotUpdateShipment(
         CouldNotUpdateShipmentException ex,
