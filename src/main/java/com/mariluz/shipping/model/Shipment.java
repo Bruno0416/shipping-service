@@ -30,7 +30,7 @@ public class Shipment {
     @Column(nullable = false)
     private Integer saleId;
 
-    @Column(nullable = false) // UUID estándar
+    @Column(nullable = false)
     private String userId;
 
     @Enumerated(EnumType.STRING)

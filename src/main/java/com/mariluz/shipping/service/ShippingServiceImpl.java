@@ -2,6 +2,7 @@ package com.mariluz.shipping.service;
 
 import com.mariluz.shipping.dto.*;
 import com.mariluz.shipping.exceptions.CouldNotCancelShipmentException;
+import com.mariluz.shipping.exceptions.CouldNotCreateShipmentException;
 import com.mariluz.shipping.exceptions.CouldNotUpdateShipmentException;
 import com.mariluz.shipping.exceptions.ShipmentNotFoundException;
 import com.mariluz.shipping.exceptions.UnauthenticatedException;
@@ -12,6 +13,7 @@ import com.mariluz.shipping.model.Status;
 import com.mariluz.shipping.model.User;
 import com.mariluz.shipping.repository.ShippingRepository;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,14 +49,33 @@ public class ShippingServiceImpl implements ShippingService {
 
     // ------------------ Implementacion metodos service -------------------
 
+    /*
+        Faltaba validar que no exista un envio vigente para el SaleId
+        -> si el envio esta en Status.CANCELED lo podemos crear
+    */
     @Override
     public ShipmentResponse createShipment(CreateShipmentRequest request) {
         // 1. obtener usuario actual
         User user = getCurrentUser();
-        // 2. crear y guardar objeto
+
+        // 2. validar que no exista un envio para esta venta aun
+        Optional<Shipment> shipmentOpt = repo.findBySaleIdAndUserId(
+            request.getSaleId(),
+            user.getId()
+        );
+        if (
+            shipmentOpt.isPresent() &&
+            !shipmentOpt.get().getStatus().equals(Status.CANCELLED)
+        ) {
+            throw new CouldNotCreateShipmentException(
+                "Ya existe un envío para esta venta"
+            );
+        }
+
+        // 3. crear y guardar objeto
         Shipment shipment = repo.save(mapper.toEntity(request, user.getId()));
 
-        // 3. devolver respuesta
+        // 4. devolver respuesta
         return mapper.toResponse(shipment);
     }
 
@@ -66,6 +87,7 @@ public class ShippingServiceImpl implements ShippingService {
         validateAdminAccess(
             "Solo los administradores pueden actualizar el estado de un envío"
         );
+
         // 2. obtener y validar envío
         Shipment shipment = repo
             .findById(request.getShipmentId())
