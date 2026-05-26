@@ -11,6 +11,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -130,6 +131,25 @@ public class GlobalExceptionHandler {
                 .build()
         );
     }
+
+    // Handler sin token / Spring Security (AuthenticationEntryPoint)
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(
+        AuthenticationException ex,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("No autenticado")
+                .errors(Map.of("error", "Se requiere token de autenticación"))
+                .endpoint(request.getRequestURI())
+                .build()
+        );
+    }
+
+    // Handle
 
     // Handler usuario no autenticado
     @ExceptionHandler(UnauthenticatedException.class)
