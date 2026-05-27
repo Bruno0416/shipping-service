@@ -72,11 +72,18 @@ public class ShippingServiceImpl implements ShippingService {
             );
         }
 
-        // 3. crear y guardar objeto
-        Shipment shipment = repo.save(mapper.toEntity(request, user.getId()));
+        // 3. crear o reactivar envío según si existe uno cancelado
+        Shipment shipment;
+        if (shipmentOpt.isPresent()) {
+            // reactivar el envío cancelado con la nueva dirección
+            shipment = shipmentOpt.get();
+            mapper.reactivateFromRequest(shipment, request);
+        } else {
+            shipment = mapper.toEntity(request, user.getId());
+        }
 
-        // 4. devolver respuesta
-        return mapper.toResponse(shipment);
+        // 4. guardar y devolver respuesta
+        return mapper.toResponse(repo.save(shipment));
     }
 
     @Override

@@ -51,8 +51,8 @@ public class ShippingController {
 
     // 4. cancelar pedido (para conectar con sales-service)
     @PutMapping("/cancel/{saleId}")
-    public ResponseEntity<?> cancelShipment(
-        @Valid @PathVariable Integer saleId
+    public ResponseEntity<Void> cancelShipment(
+        @PathVariable Integer saleId
     ) {
         service.cancelShipment(saleId);
         return ResponseEntity.noContent().build();

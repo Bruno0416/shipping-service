@@ -45,6 +45,15 @@ public interface ShipmentMapper {
         UpdateShipmentStatusRequest request
     );
 
+    // ---------- Reactivar envío cancelado ----------
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "status", constant = "CREATED") // estado inicial (regla de negocio)
+    @Mapping(target = "shippingAddress", source = "request.address") // actualizar dirección
+    void reactivateFromRequest(
+        @MappingTarget Shipment shipment,
+        CreateShipmentRequest request
+    );
+
     // ---------- Entity List -> Response Wrapper ----------
     List<ShipmentResponse> toResponseList(List<Shipment> shipments);
 

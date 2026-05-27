@@ -149,8 +149,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // Handle
-
     // Handler usuario no autenticado
     @ExceptionHandler(UnauthenticatedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthenticated(
@@ -161,7 +159,7 @@ public class GlobalExceptionHandler {
             ErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .message("No autenticado")
+                .message("Usuario no autenticado")
                 .errors(Map.of("error", ex.getMessage()))
                 .endpoint(request.getRequestURI())
                 .build()
@@ -281,7 +279,7 @@ public class GlobalExceptionHandler {
 
     // Handler error generico de JWT
     @ExceptionHandler(JwtException.class)
-    public ResponseEntity<ErrorResponse> handleJsonParseError(
+    public ResponseEntity<ErrorResponse> handleJwtException(
         JwtException ex,
         HttpServletRequest request
     ) {
